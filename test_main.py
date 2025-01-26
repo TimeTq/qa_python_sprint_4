@@ -12,7 +12,7 @@ GENRE_AGE_RATING = ['Ужасы', 'Детективы']
 
 
 class TestBooksCollector:       
-    @pytest.fixture(scope='function', autouse=True)
+    @pytest.fixture(scope='function')
     def books_collector(self):
         self.books_collector = BooksCollector()
 
@@ -23,19 +23,23 @@ class TestBooksCollector:
             self.all_genre_books_collector.add_new_book(name)
             self.all_genre_books_collector.set_book_genre(name, genre)
 
+    def test_init_none_bookscollector_object(self):
+        assert isinstance(BooksCollector(), BooksCollector)
+
     @pytest.mark.parametrize('name', ALLOWED_BOOKS_NAMES)
-    def test_add_new_book_add_new_books_book_in_books_genre(self, name):
+    def test_add_new_book_allowed_book_name_book_in_books_genre(self, name, books_collector):
         self.books_collector.add_new_book(name)
         assert name in self.books_collector.books_genre
 
     @pytest.mark.parametrize('name, genre', [*zip(ALLOWED_BOOKS_NAMES, NOT_ALLOWED_GENRE)])
-    def test_set_book_genre_genre_not_allowed_book_genre_has_empty_str(self, name, genre):
+    def test_set_book_genre_genre_not_allowed_book_genre_has_empty_str(self, name, genre, books_collector):
         self.books_collector.add_new_book(name)
+        old_genre = self.books_collector.books_genre[name]
         self.books_collector.set_book_genre(name, genre)
-        assert self.books_collector.books_genre[name] == ''
+        assert self.books_collector.books_genre[name] == old_genre
 
     @pytest.mark.parametrize('name, genre', [*zip(ALLOWED_BOOKS_NAMES, ALLOWED_GENRE)])
-    def test_get_book_genre_add_book_with_genre_eq_genre(self, name, genre):
+    def test_get_book_genre_add_book_with_genre_eq_genre(self, name, genre, books_collector):
         self.books_collector.add_new_book(name)
         self.books_collector.set_book_genre(name, genre)
         assert self.books_collector.get_book_genre(name) == genre
@@ -68,6 +72,6 @@ class TestBooksCollector:
         assert name not in self.all_genre_books_collector.favorites
 
     @pytest.mark.parametrize('name', ALLOWED_BOOKS_NAMES)
-    def test_get_list_of_favorites_books_favorite_book_lis_with_book(self, name, all_genre_books_collector):
+    def test_get_list_of_favorites_books_favorite_book_list_with_book(self, name, all_genre_books_collector):
         self.all_genre_books_collector.add_book_in_favorites(name)
         assert self.all_genre_books_collector.get_list_of_favorites_books() == [name]
